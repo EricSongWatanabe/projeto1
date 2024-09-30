@@ -530,7 +530,6 @@ void som(int sons) {
   }
 }
 
-
 //----------------------- LIMPA ARRAY -------------------------
 
 void resetar_jogo() {
