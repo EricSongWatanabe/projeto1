@@ -1,5 +1,4 @@
 #include <LiquidCrystal.h>
-
 // estado do jogo (0 p/ não iniciado e 1 p/ iniciado)
 int estado = 0;
 // estado para verificar se o tempo chegou a 0 ou não
@@ -22,7 +21,6 @@ int sequencia_botao[10];
 
 // contador para a sequência / tempo
 int cont = 0;
-unsigned long ultimoTempo = 0;
 
 LiquidCrystal lcd(12, 11, 8, 7, 6, 5);
 
@@ -33,7 +31,7 @@ void setup() {
   pinMode(pin_botaoE, INPUT_PULLUP);
   pinMode(pin_botaoD, INPUT_PULLUP);
   pinMode(pin_buzzer, OUTPUT);
-
+  
   lcd.begin(16, 2);
 
   attachInterrupt(digitalPinToInterrupt(pin_botaoIni), setar, FALLING);
@@ -44,7 +42,7 @@ void loop() {
   // LCD na tela inicial
   if (estado == 0) {
     lcd.setCursor(0, 0);
-    lcd.print("Pressione o      ");
+    lcd.print("Pressione o");
     lcd.setCursor(0, 1);
     lcd.print("botao p/ iniciar");
   }
@@ -52,11 +50,11 @@ void loop() {
   if (estado == 1) {
     memoria();
     for (int i = 0; i < 10; i++){
-      Serial.println(sequencia[i]);
+    	Serial.println(sequencia[i]);
     }
     if (digitando() && estado != 0) {
       Serial.println(estado);
-      som(8);
+      som(0);
       lcd.clear();
       lcd.setCursor(4, 0);
       lcd.print("Parabens!   ");
@@ -66,7 +64,7 @@ void loop() {
       estado = 2;
     } 
     else if(!digitando()){
-      som(2);
+      som(1);
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Errado!     ");
@@ -75,7 +73,7 @@ void loop() {
       delay(2000);
       estado = 0;
     } else{
-      som(3);
+      som(1);
       lcd.clear();
       lcd.setCursor(6, 0);
       lcd.print("Jogo");
@@ -88,7 +86,7 @@ void loop() {
   if (estado == 2){
     perguntas();
     if(estado == 0 && temp != 1){
-      som(3);
+      som(1);
       lcd.clear();
       lcd.setCursor(6, 0);
       lcd.print("Jogo");
@@ -99,8 +97,9 @@ void loop() {
       temp = 0;
     }
   }
-  // LCD na parte 3
-  if (estado == 3){
+  
+  // LCD na parte 30
+  if(estado == 3){
     pergunta_final();
   }
 }
@@ -110,10 +109,11 @@ void loop() {
 void setar() {
   if (estado == 0) {
     //------------------- ARRUMAR --------------------------
-      estado = 1;
+      estado = 2;
+      //som(2);
     } else {
       estado = 0;
-      som(7);
+      som(3);
       resetar_jogo();
       Serial.println("Jogo resetado!");
     }
@@ -179,7 +179,6 @@ bool digitando() {
       }
       lcd.setCursor(13, 1);
       lcd.print(cont + 1);
-      //som(0);
       cont++;
       delay(300);
     } else if (digitalRead(pin_botaoD) == LOW) {
@@ -194,7 +193,6 @@ bool digitando() {
       lcd.print("Sequencia:");
       lcd.setCursor(13, 1);
       lcd.print(cont + 1);
-      //som(0);
       cont++;
       delay(300);
     }
@@ -204,70 +202,34 @@ bool digitando() {
 
 //---------------- BANCO DE PERGUNTAS PARTE 2 -----------------
 
-const char* bancodedados_perguntas[25] = {
-  "O Arduino possui portas digitais?",
-  "É possível conectar um LED a uma porta digital?",
-  "As portas digitais podem ler sinais analógicos?",
-  "Um botão pode ser conectado a uma porta digital?",
-  "As portas digitais podem ser configuradas como pull-up?",
-  "As portas digitais funcionam com 5V?",
-  "As portas digitais funcionam com tensões acima de 5V?",
-  "A computação móvel é sempre segura?",
-  "A tecnologia 5G eh mais rapida que a 4G?",
-  "O iOS eh um sistema operacional da Microsoft?",
-  "O LCD 16x2 mostra 16 caracteres em 3 linhas?",
-  "O display LCD faz uso de cristais liquidos?",
-  "Eh preciso um resistor para controlar um motor CC?",
-  "Os servomotores sao um tipo de atuador?",
-  "Um rele pode ser considerado um atuador?",
-  "O Arduino pode ler sinais analogicos?",
-  "Um potenciometro eh um sensor analogico?",
-  "O Arduino apenas possui entradas analogicas?",
-  "Um LDR fornece saida digital?",
-  "A funcao analogWrite() le valores analogicos?",
-  "Um LDR fornece saida digital?",
-  "A funcao analogWrite() le valores analogicos?",
-  "O sinal analogico eh sempre continuo?",
-  "Um termistor tem saida digital?",
-  "O valor lido pelo analogRead() varia de 0 a 255?"
+const char* bancodedados_perguntas[10] = {
+  "Pergunta teste numero 1",
+  "Pergunta teste numero 2",
+  "Pergunta teste numero 3",
+  "Pergunta teste numero 4",
+  "Pergunta teste numero 5",
+  "Pergunta teste numero 6",
+  "Pergunta teste numero 7",
+  "Pergunta teste numero 8",
+  "Pergunta teste numero 9",
+  "Pergunta teste numero 10",
 };
 
 //---------------- BANCO DE RESPOSTAS PARTE 2 -----------------
 
-bool bancodedados_respostas[25] = {
-  true,   
-  true,   
-  false,  
-  false,  
-  true,  
-  true,  
-  true,   
-  false,  
-  true,  
-  false,  
-  false,  
-  true,   
-  false, 
-  true,  
-  true,  
-  true,   
-  true,   
-  false, 
-  false,  
-  false,  
-  false,  
-  false,  
-  false,  
-  false,  
-  true    
+bool bancodedados_respostas[10] = {
+  true, false, true, false, false, true, true,
+  true, true, false
 };
 
 //------------------------ PARTE 2 ----------------------------
 
+bool pulou = false;
+int respostas_corretas = 0;
+
 void perguntas() {
   randomSeed(analogRead(0));
   cont = 0;
-  int skips = 1;
   if (estado == 0) return;
   if (estado == 2) {
     bool resposta = false;
@@ -283,278 +245,291 @@ void perguntas() {
     lcd.setCursor(4, 1);
     lcd.print("perguntas");
     delay(2000);
-    lcd.clear();
-    lcd.setCursor(2, 0);
-    lcd.print("Responda com");
-    lcd.setCursor(3, 1);
-    lcd.print("Sim ou Nao");
-    delay(2000);
     if (estado == 0) return;
-
-    for (int q = 0; q <= 4; q++) {
+    
+    for (int i = 0; i < 5; i++) {
       cont++;
       if (estado == 0) return;
       lcd.clear();
-      lcd.setCursor(1, 0);
-      lcd.print("Questao ");
-      lcd.print(cont);
-      lcd.setCursor(11, 0);
-      lcd.print("de 5");
-      delay(2000);
+      lcd.setCursor(2, 0);
+      lcd.print("Responda com");
+      lcd.setCursor(3, 1);
+      lcd.print("Sim ou Nao");
+      delay(1500);
+      
       lcd.clear();
-      int num = random(25); 
+      int num = random(10); 
       lcd.setCursor(0, 0);
       lcd.print(bancodedados_perguntas[num]);
       delay(1000);
-      Serial.println(bancodedados_respostas[num]);
-
+      
       for (int pos = 0; pos < strlen(bancodedados_perguntas[num]) - 16; pos++) {
         if (estado == 0) return;
         lcd.scrollDisplayLeft();  
-        delay(400);
+        delay(500);
       }
+      lcd.clear();
+      lcd.setCursor(3, 0);
+      lcd.print("Questao ");
+      lcd.print(cont);
+      Serial.println(bancodedados_respostas[num]);
+      lcd.setCursor(3, 1);
+      lcd.print("Sim / Nao");
+      delay(2000);
       unsigned long tempo = millis();
+      Serial.println("tempo:");
+      Serial.println(tempo);
       int resp = 0;
+
       if (estado == 0) return;
       lcd.clear();
-      bool relogio = false;  
+
       while((millis() - tempo) < 10000) {
         delay(2);
         lcd.setCursor(3, 0);
         lcd.print("Tempo: ");
         lcd.print((tempo + 10000 - millis())/1000 + 1);
-        if(((tempo + 10000 - millis()) + 1000) < 10000 ) {
+        if(((tempo + 10000 - millis())/1000 + 1) <= 3){
+          som(4);
+        }
+        if(((tempo + 10000 - millis()) + 1000) < 10000 ){
           lcd.setCursor(11,0);
           lcd.print(" ");
         }
-        //if(((tempo + 10000 - millis()) + 1000) < 6000) { 
-        //  if(tempo - ultimoTempo >= 500){ 
-        //    if (relogio == false) {
-        //      som(5);
-        //      relogio = true;
-        //    } else if(relogio == true) {
-        //      som(6);
-        //      relogio = false;
-        //    }
-        //    ultimoTempo = tempo; 
-        //  }
-        //}
         lcd.setCursor(3, 1);
         lcd.print("Sim / Nao");
 
         if(digitalRead(pin_botaoE) == LOW) {
-          resposta = true;
           resp = 1;
+          resposta = true;
+          Serial.print(resposta);
           break;
         } else if (digitalRead(pin_botaoD) == LOW) {
-          resposta = false;
           resp = 1;
+          resposta = false;
+          Serial.print(resposta);
           break;
         }
       }
+      
       if(resp == 0) {
-        if(skips != 1) {
-          temp = 1;
-          som(2);
+        if (!pulou) {
+          som(0);
+          pulou = true;
           lcd.clear();
-          lcd.setCursor(5, 0);
+          lcd.setCursor(4, 0);
+          lcd.print("Pulando...");
+          delay(1500);
+          i--;
+          cont--;
+        } else {
+          som(1);
+          temp = 1;
+          lcd.clear();
+          lcd.setCursor(6, 0);
           lcd.print("Tempo");
           lcd.setCursor(4, 1);
           lcd.print("Esgotado");
           delay(1500); 
           estado = 0;
           return;
-        } else {
-          som(1);
-          lcd.clear();
-          lcd.setCursor(4, 0);
-          lcd.print("Pergunta");
-          lcd.setCursor(5, 1);
-          lcd.print("Pulada");
-          delay(1500);
-          skips--;
         }
       }
+     
       if(bancodedados_respostas[num] == resposta) { 
         if(bancodedados_respostas[num] == true) {
           som(0);
+          respostas_corretas++;
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Correta: ");
           lcd.setCursor(2, 1);
           lcd.print("*Sim / Nao");
-          delay(1500); 
+          delay(1000); 
         } else {
           som(0);
+          respostas_corretas++;
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Correta: ");
           lcd.setCursor(2, 1);
           lcd.print("Sim / *Nao");
-          delay(1500);
+          delay(1000);
         }
-      }
-      else {
+      } else {
         if(bancodedados_respostas[num] == true) {
-          som(2);
+          som(1);
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Errada: ");
           lcd.setCursor(2, 1);
           lcd.print("*Sim / Nao");
-          delay(1500);
+          delay(1000);
           estado = 0;
-          temp = 1;
           return;
         } else {
-          som(2);
+          som(1);
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Errada: ");
           lcd.setCursor(2, 1);
           lcd.print("Sim / *Nao");
-          delay(1500);
+          delay(1000);
           estado = 0;
-          temp = 1;
           return;
         }
       }
-      lcd.clear();
-      if(q == 4){
-        som(8);
-        lcd.setCursor(4, 0);
-        lcd.print("Parabens!   ");
-        lcd.setCursor(4, 1);
-        lcd.print("Acertou!       ");
-        delay(2000);
+      if(respostas_corretas == 5){
         estado = 3;
         return;
       }
+      lcd.clear();
     }
   }
 }
 
+//---------------- PERGUNTA PARTE 3 -----------------
 
-//------------------------- PARTE 3 --------------------------
+const char* pergunta_final_texto = "Pergunta teste FINAL";
+
+//---------------- RESPOSTA PARTE 3 -----------------
+
+bool resposta_final = true;
+
+//------------------------ PARTE 3 ----------------------------
+
 
 void pergunta_final(){
-  if(estado == 0) return;
-  if(estado == 3){
+  if (estado == 0) return;
+  if (estado == 3){
+    bool resposta = false;
     lcd.clear();
     lcd.setCursor(4, 0);
-    lcd.print("Fase da");
-    lcd.setCursor(1, 1);
-    lcd.print("Pergunta Final");
+    lcd.print("Pergunta");
+    lcd.setCursor(5, 1);
+    lcd.print("Final");
     delay(2000);
-    int resp = 0;
     lcd.clear();
-    while(resp == 0){
-      if(estado == 0) return;
-      lcd.setCursor(0, 0);
-      lcd.print("Gostou do Jogo?");
+    if (estado == 0) return;
+    
+    if (estado == 0) return;
+    lcd.clear();
+    lcd.setCursor(2, 0);
+    lcd.print("Responda com");
+    lcd.setCursor(3, 1);
+    lcd.print("Sim ou Nao");
+    delay(1500);
+    
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(pergunta_final_texto);
+    delay(1000);
+    
+    for (int pos = 0; pos < strlen(pergunta_final_texto) - 16; pos++) {
+      if (estado == 0) return;
+      lcd.scrollDisplayLeft();  
+      delay(500);
+    }
+    
+    lcd.clear();
+    lcd.setCursor(1, 0);
+    lcd.print("Questao Final");
+    lcd.setCursor(3, 1);
+    lcd.print("Sim / Nao");
+    delay(2000);
+    unsigned long tempo = millis();
+    int resp = 0;
+
+    if (estado == 0) return;
+    lcd.clear();
+    
+    while((millis() - tempo) < 10000) {
+      delay(2);
+      lcd.setCursor(3, 0);
+      lcd.print("Tempo: ");
+      lcd.print((tempo + 10000 - millis())/1000 + 1);
+      if(((tempo + 10000 - millis()) + 1000) < 10000 ){
+        lcd.setCursor(11,0);
+        lcd.print(" ");
+      }
       lcd.setCursor(3, 1);
       lcd.print("Sim / Nao");
+  
       if(digitalRead(pin_botaoE) == LOW) {
-        resp = 1;
-        som(4);
-        char* respfinal = "Voce acertou todas as perguntas";
-        lcd.setCursor(0, 0);
-        lcd.print("    Parabens!   ");
-        lcd.setCursor(0, 1);
-        lcd.print(respfinal);
-        delay(1000);
-        for (int pos = 0; pos < strlen(respfinal) - 16; pos++) {
-          if (estado == 0) return;
-          lcd.scrollDisplayLeft();  
-          delay(350);
-        }
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Agradecemos o");
-        lcd.setCursor(0, 1);
-        lcd.print("seu feedback! ;)");
-        delay(2000);
-        estado = 0;
-        return;
+        resposta_final = true;
+        break;
       } else if (digitalRead(pin_botaoD) == LOW) {
-        resp = 1;
-        som(8);
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Agradecemos o");
-        lcd.setCursor(0, 1);
-        lcd.print("seu feedback! ;)");
-        delay(2000);
-        estado = 0;
-        return;
+        resposta_final = false;
+        break;
       }
     }
+    
+    if(resposta_final == true){
+      som(2);
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("PARABENS!");
+      lcd.setCursor(3, 1);
+      lcd.print("VOCE VENCEU!");
+      delay(4000);
+      lcd.clear();
+      estado = 0;
+      return;
+    } else{
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Resposta Errada: ");
+      lcd.setCursor(2, 1);
+      lcd.print("*Sim / Nao");
+      delay(2000);
+      lcd.clear();
+      estado = 0;
+      return;
+    }
+  
+    
   }
 }
+
+
+
 
 
 //--------------------------- SOM ----------------------------
 
 void som(int sons) {
-  // questao correta
-  if (sons == 0) { 
-    tone(pin_buzzer, 1000, 200); 
-    delay(200);
-    tone(pin_buzzer, 1200, 200);
-  } 
-  // questao pulada
-  else if(sons == 1) { 
-    tone(pin_buzzer, 800, 500);  
-  } 
-  // questao incorreta
-  else if(sons == 2) { 
-    tone(pin_buzzer, 600, 300);  
+  if (sons == 0) { // acerto
+    tone(pin_buzzer, 1200, 300);
+    delay(100);
+    tone(pin_buzzer, 1400, 300);
+  } else if (sons == 1) { // erro
+    tone(pin_buzzer, 400, 500);
+    delay(50);
+    tone(pin_buzzer, 350, 500);
+  } else if (sons == 2) { // vitoria
+    tone(pin_buzzer, 1000, 300);
     delay(300);
-    tone(pin_buzzer, 400, 300);
-  } 
-  // desistir
-  else if(sons == 3) { 
-    tone(pin_buzzer, 300, 1000);
-  }
-  // vitoria
-  else if(sons == 4) { 
-    tone(pin_buzzer, 1000, 300);  
+    tone(pin_buzzer, 1200, 300);
     delay(300);
-    tone(pin_buzzer, 1200, 300);  
+    tone(pin_buzzer, 1400, 300);
     delay(300);
-    tone(pin_buzzer, 1500, 500);
-  }
-  // tempo acabando 1
-  else if(sons == 5) { 
-    tone(pin_buzzer, 800, 100);  
-  }
-  // tempo acabando 2
-  else if(sons == 6) { 
-    tone(pin_buzzer, 600, 100);  
-  }
-  // reiniciando
-  else if(sons == 7) {
-    tone(pin_buzzer, 1000, 200); 
-    delay(200);
-    tone(pin_buzzer, 800, 200);  
-    delay(200);
-    tone(pin_buzzer, 600, 200); 
-    delay(200);
-    tone(pin_buzzer, 800, 200);   
-    delay(200);
-    tone(pin_buzzer, 1000, 200);  
-  }
-  // vitoria p/ fase
-  else if(sons == 8) {
-    tone(pin_buzzer, 1200, 200);  
-    delay(200);
-    tone(pin_buzzer, 1400, 200);  
-    delay(200);
-    tone(pin_buzzer, 1000, 300);  
+    tone(pin_buzzer, 1600, 600);
+    delay(600);
+    tone(pin_buzzer, 1400, 300);
     delay(300);
-    tone(pin_buzzer, 800, 300);   
+    tone(pin_buzzer, 1600, 600);
+  } else if (sons == 3) { // desistência
+    tone(pin_buzzer, 200, 500);
+    delay(100);
+    tone(pin_buzzer, 150, 500);
+  } else if (sons == 4) { // tempo acabando
+    for (int i = 1000; i < 2000; i += 200) {
+      tone(pin_buzzer, i, 150);
+      delay(150);
+    }
   }
 }
+
 
 //----------------------- LIMPA ARRAY -------------------------
 
