@@ -51,7 +51,7 @@ void loop() {
   if (estado == 1) {
     memoria();
     for (int i = 0; i < 10; i++){
-    	Serial.println(sequencia[i]);
+      Serial.println(sequencia[i]);
     }
     if (digitando() && estado != 0) {
       Serial.println(estado);
@@ -110,7 +110,7 @@ void loop() {
 void setar() {
   if (estado == 0) {
     //------------------- ARRUMAR --------------------------
-      estado = 2;
+      estado = 1;
       //som(2);
     } else {
       estado = 0;
@@ -262,8 +262,8 @@ void perguntas() {
     delay(2000);
     if (estado == 0) return;
     for (int j = 0; j < 5; j++){
-    	int num = random(13);
-      	num_perguntas[j] = num;
+      int num = random(13);
+        num_perguntas[j] = num;
     }
     
     for (int i = 0; i < 5; i++) {
@@ -472,6 +472,9 @@ void pergunta_final(){
         lcd.setCursor(11,0);
         lcd.print(" ");
       }
+      if(((tempo + 10000 - millis())/1000 + 1) <= 3){
+          som(4);
+      }
       lcd.setCursor(3, 1);
       lcd.print("Sim / Nao");
   
@@ -496,6 +499,7 @@ void pergunta_final(){
       estado = 0;
       return;
     } else{
+      som(1);
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Resposta Errada: ");
