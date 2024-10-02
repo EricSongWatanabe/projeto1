@@ -4,6 +4,8 @@
 int estado = 0;
 // estado para verificar se o tempo chegou a 0 ou não
 int temp = 0;
+// estado para verificar se a resposta ocorreu ou nao
+int resp = 0;
 
 // pinos dos LEDs, botões e buzzer
 int pin_ledE = 10; //Pino do LED Esquerdo
@@ -99,9 +101,20 @@ void loop() {
     }
   }
   
-  // LCD na parte 30
+  // LCD na parte 3
   if(estado == 3){
     pergunta_final();
+    if(estado == 0 && resp != 1){
+      som(1);
+      lcd.clear();
+      lcd.setCursor(6, 0);
+      lcd.print("Jogo");
+      lcd.setCursor(4, 1);
+      lcd.print("resetado");
+      delay(2000);
+    } else{
+        resp = 0;
+    }
   }
 }
 
@@ -238,12 +251,13 @@ bool bancodedados_respostas[13] = {
 
 //------------------------ PARTE 2 ----------------------------
 
-bool pulou = false;
+
 int respostas_corretas = 0;
 int num_perguntas[5];
 
 void perguntas() {
   randomSeed(analogRead(0));
+  bool pulou = false;
   cont = 0;
   if (estado == 0) return;
   if (estado == 2) {
@@ -263,6 +277,11 @@ void perguntas() {
     if (estado == 0) return;
     for (int j = 0; j < 5; j++){
       int num = random(13);
+        for(int c = 0; c < 5; c++){
+          if(num_perguntas[c] == num){
+              num = random(13);
+            }
+        }
         num_perguntas[j] = num;
     }
     
@@ -285,7 +304,7 @@ void perguntas() {
       for (int pos = 0; pos < strlen(bancodedados_perguntas[num]) - 16; pos++) {
         if (estado == 0) return;
         lcd.scrollDisplayLeft();  
-        delay(500);
+        delay(300);
       }
       lcd.clear();
       lcd.setCursor(3, 0);
@@ -333,6 +352,8 @@ void perguntas() {
       
       if(resp == 0) {
         if (!pulou) {
+          i--;
+          cont--;
           som(0);
           int num2 = random(13);
           num_perguntas[i] = num2;
@@ -341,8 +362,6 @@ void perguntas() {
           lcd.setCursor(4, 0);
           lcd.print("Pulando...");
           delay(1500);
-          i--;
-          cont--;
         } else {
           som(1);
           temp = 1;
@@ -458,7 +477,6 @@ void pergunta_final(){
     lcd.print("Sim / Nao");
     delay(2000);
     unsigned long tempo = millis();
-    int resp = 0;
 
     if (estado == 0) return;
     lcd.clear();
@@ -480,20 +498,22 @@ void pergunta_final(){
   
       if(digitalRead(pin_botaoE) == LOW) {
         resposta_final = true;
+        resp = 1;
         break;
       } else if (digitalRead(pin_botaoD) == LOW) {
         resposta_final = false;
+        resp = 1;
         break;
       }
     }
     
     if(resposta_final == true){
-      som(2);
       lcd.clear();
       lcd.setCursor(4, 0);
       lcd.print("PARABENS!");
       lcd.setCursor(3, 1);
       lcd.print("VOCE VENCEU!");
+      som(2);
       delay(4000);
       lcd.clear();
       estado = 0;
