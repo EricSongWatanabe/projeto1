@@ -1,3 +1,4 @@
+
 #include <LiquidCrystal.h>
 // estado do jogo (0 p/ não iniciado e 1 p/ iniciado)
 int estado = 0;
@@ -202,30 +203,44 @@ bool digitando() {
 
 //---------------- BANCO DE PERGUNTAS PARTE 2 -----------------
 
-const char* bancodedados_perguntas[10] = {
-  "Pergunta teste numero 1",
-  "Pergunta teste numero 2",
-  "Pergunta teste numero 3",
-  "Pergunta teste numero 4",
-  "Pergunta teste numero 5",
-  "Pergunta teste numero 6",
-  "Pergunta teste numero 7",
-  "Pergunta teste numero 8",
-  "Pergunta teste numero 9",
-  "Pergunta teste numero 10",
+const char* bancodedados_perguntas[13] = {
+  "O Arduino possui portas digitais?",
+  "As portas digitais funcionam com 5V?",
+  "A computacao movel eh sempre segura?",
+  "A tecnologia 5G eh mais rapida que a 4G?",
+  "Os servomotores sao um tipo de atuador?",
+  "Um rele pode ser considerado um atuador?",
+  "O Arduino pode ler sinais analogicos?",
+  "Um potenciometro eh um sensor analogico?",
+  "Um LDR fornece saida digital?",
+  "Um LDR fornece saida digital?",
+  "O sinal analogico eh sempre continuo?",
+  "Um termistor tem saida digital?"
 };
 
 //---------------- BANCO DE RESPOSTAS PARTE 2 -----------------
 
-bool bancodedados_respostas[10] = {
-  true, false, true, false, false, true, true,
-  true, true, false
+bool bancodedados_respostas[13] = {
+  true, 
+  true,   
+  false,  
+  true, 
+  true,  
+  true,  
+  true,   
+  true,  
+  false,  
+  false,  
+  false,  
+  false  
 };
+
 
 //------------------------ PARTE 2 ----------------------------
 
 bool pulou = false;
 int respostas_corretas = 0;
+int num_perguntas[5];
 
 void perguntas() {
   randomSeed(analogRead(0));
@@ -246,6 +261,10 @@ void perguntas() {
     lcd.print("perguntas");
     delay(2000);
     if (estado == 0) return;
+    for (int j = 0; j < 5; j++){
+    	int num = random(13);
+      	num_perguntas[j] = num;
+    }
     
     for (int i = 0; i < 5; i++) {
       cont++;
@@ -258,7 +277,7 @@ void perguntas() {
       delay(1500);
       
       lcd.clear();
-      int num = random(10); 
+      int num = num_perguntas[i]; 
       lcd.setCursor(0, 0);
       lcd.print(bancodedados_perguntas[num]);
       delay(1000);
@@ -315,6 +334,8 @@ void perguntas() {
       if(resp == 0) {
         if (!pulou) {
           som(0);
+          int num2 = random(13);
+          num_perguntas[i] = num2;
           pulou = true;
           lcd.clear();
           lcd.setCursor(4, 0);
@@ -390,14 +411,13 @@ void perguntas() {
 
 //---------------- PERGUNTA PARTE 3 -----------------
 
-const char* pergunta_final_texto = "Pergunta teste FINAL";
+const char* pergunta_final_texto = "Voce gostou do jogo?";
 
 //---------------- RESPOSTA PARTE 3 -----------------
 
 bool resposta_final = true;
 
 //------------------------ PARTE 3 ----------------------------
-
 
 void pergunta_final(){
   if (estado == 0) return;
@@ -490,10 +510,6 @@ void pergunta_final(){
     
   }
 }
-
-
-
-
 
 //--------------------------- SOM ----------------------------
 
