@@ -1,4 +1,11 @@
-
+//
+// Eric Song Watanabe - RA: 24.123.028-3
+//
+// Rafael Iamashita Becsei - RA: 24.123.018-4
+//
+//
+//
+//
 #include <LiquidCrystal.h>
 // estado do jogo (0 p/ não iniciado e 1 p/ iniciado)
 int estado = 0;
@@ -27,7 +34,7 @@ int cont = 0;
 
 LiquidCrystal lcd(12, 11, 8, 7, 6, 5);
 
-void setup() {
+void setup() { //definindo os pinos para cada componente
   pinMode(pin_ledE, OUTPUT);
   pinMode(pin_ledD, OUTPUT);
   pinMode(pin_botaoIni, INPUT_PULLUP);
@@ -35,9 +42,9 @@ void setup() {
   pinMode(pin_botaoD, INPUT_PULLUP);
   pinMode(pin_buzzer, OUTPUT);
   
-  lcd.begin(16, 2);
+  lcd.begin(16, 2); //iniciando o lcd
 
-  attachInterrupt(digitalPinToInterrupt(pin_botaoIni), setar, FALLING);
+  attachInterrupt(digitalPinToInterrupt(pin_botaoIni), setar, FALLING); //funcao de interrupção para alterar o estado do botao
   Serial.begin(9600);
 }
 
@@ -50,14 +57,14 @@ void loop() {
     lcd.print("botao p/ iniciar");
   }
   // LCD na parte 1
-  if (estado == 1) {
-    memoria();
+  if (estado == 1) { //caso o estado esteja em 1 (1ª fase)
+    memoria(); //a função para a fase de memória é chamada e a fase começa
     for (int i = 0; i < 10; i++){
-      Serial.println(sequencia[i]);
+      Serial.println(sequencia[i]); //impressao da sequencia no serial (p/ auxiliar nos testes)
     }
-    if (digitando() && estado != 0) {
+    if (digitando() && estado != 0) { //caso o botao de desistencia nao for pressionado e o usuario vencer a fase
       Serial.println(estado);
-      som(0);
+      som(0); //som de vitoria
       lcd.clear();
       lcd.setCursor(4, 0);
       lcd.print("Parabens!   ");
@@ -66,8 +73,8 @@ void loop() {
       delay(2000);
       estado = 2;
     } 
-    else if(!digitando()){
-      som(1);
+    else if(!digitando()){ //caso o usuario perder a fase
+      som(1); //som de derrota
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Errado!     ");
@@ -75,8 +82,8 @@ void loop() {
       lcd.print("Tente de novo");
       delay(2000);
       estado = 0;
-    } else{
-      som(1);
+    } else{ //caso o botao de desistencia for pressionado
+      som(1); //som de derrota
       lcd.clear();
       lcd.setCursor(6, 0);
       lcd.print("Jogo");
@@ -86,10 +93,10 @@ void loop() {
     }
   }
   // LCD na parte 2
-  if (estado == 2){
-    perguntas();
-    if(estado == 0 && temp != 1){
-      som(1);
+  if (estado == 2){ //caso o estado esteja em 2 (2ª fase)
+    perguntas(); //a função para a fase das perguntas é chamada e a fase começa
+    if(estado == 0 && temp != 1){ //caso o botao de desistencia for pressionado ou o usuario perdeu a fase
+      som(1); //som de derrota
       lcd.clear();
       lcd.setCursor(6, 0);
       lcd.print("Jogo");
@@ -97,15 +104,15 @@ void loop() {
       lcd.print("resetado");
       delay(2000);
     }else{
-      temp = 0;
+      temp = 0; //variavel volta ao estado inicial
     }
   }
   
   // LCD na parte 3
-  if(estado == 3){
-    pergunta_final();
-    if(estado == 0 && resp != 1){
-      som(1);
+  if(estado == 3){ //caso o estado esteja em 3 (3ª fase)
+    pergunta_final(); //a função para a fase final é chamada e a fase começa
+    if(estado == 0 && resp != 1){ //caso o botao de desistencia for pressionado ou o usuario perdeu a fase
+      som(1); //som de derrota
       lcd.clear();
       lcd.setCursor(6, 0);
       lcd.print("Jogo");
@@ -113,7 +120,7 @@ void loop() {
       lcd.print("resetado");
       delay(2000);
     } else{
-        resp = 0;
+        resp = 0; //variavel volta ao estado inicial
     }
   }
 }
@@ -121,13 +128,12 @@ void loop() {
 //--------------------- SETA ESTADOS -------------------------
 
 void setar() {
-  if (estado == 0) {
-    //------------------- ARRUMAR --------------------------
+  if (estado == 0) { //caso o estado estiver em 0 (menu), ele tornará 1 (1ª fase), ou seja, inicia o jogo
       estado = 1;
       //som(2);
-    } else {
+    } else { //caso o estado estiver diferente de zero (qualquer uma das fases), ele tornará 0 (menu), ou seja, reinicia o jogo 
       estado = 0;
-      som(3);
+      som(3); //som de desistencia
       resetar_jogo();
       Serial.println("Jogo resetado!");
     }
@@ -135,40 +141,40 @@ void setar() {
 
 //------------------------- PARTE 1 --------------------------
 
-void memoria() {
-  randomSeed(analogRead(0));
-  if (estado == 1) {
+void memoria() { //funcao para o jogo de memoria
+  randomSeed(analogRead(0)); //gera uma semente aleatoria para a sequencia de led
+  if (estado == 1) { //caso o estado esteja em 1 (1ª fase)
     lcd.clear();
     lcd.setCursor(4, 0);
     lcd.print("Fase da");
     lcd.setCursor(4, 1);
     lcd.print("memoria");
     delay(2000);
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
     lcd.clear();
     lcd.setCursor(3, 0);
     lcd.print("Memorize a");
     lcd.setCursor(3, 1);
     lcd.print("sequencia");
     delay(2000);
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
 
-    for (int i = 0; i < 10; i++) {
-      if (estado == 0) return; 
+    for (int i = 0; i < 10; i++) { //loop para gerar um numero aleatorio (0 ou 1) para a sequencia de leds e armazenando no array
+      if (estado == 0) return; //caso o botao de desistencia for pressionado 
       int num = random(2); 
       sequencia[i] = num;
 
-      if (num == 0) {
+      if (num == 0) { //caso o valor gerado seja 0, acende o led esquerdo
         digitalWrite(pin_ledE, HIGH);
         delay(500);
         digitalWrite(pin_ledE, LOW);
-      } else {
+      } else { //caso o valor gerado seja 1, acende o led direito
         digitalWrite(pin_ledD, HIGH);
         delay(500);
         digitalWrite(pin_ledD, LOW);
       }
       delay(500); 
-      if (estado == 0) return; 
+      if (estado == 0) return; //caso o botao de desistencia for pressionado 
     }
 
     lcd.clear();
@@ -177,27 +183,27 @@ void memoria() {
     lcd.setCursor(3, 1);
     lcd.print("Sequencia:");
     cont = 0;
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
   }
 }
 
 //------------------- RESPOSTA PARTE 1 ------------------------
 
-bool digitando() {
+bool digitando() { //funcao dedicada para o periodo em que o usuario esta "digitando" a sequencia
   cont = 0;
-  while (cont < 10 && estado == 1) {
-    if (digitalRead(pin_botaoE) == LOW) {
+  while (cont < 10 && estado == 1) { //loop é ativo enquanto o usuario nao aperta 10 botoes para a sequencia ou o botao de desistencia nao foi pressionado
+    if (digitalRead(pin_botaoE) == LOW) { //ao clicar o botao esquerdo, é armazenado o valor 0 no array da sequencia
       sequencia_botao[cont] = 0;
-      if (sequencia_botao[cont] != sequencia[cont]) {
+      if (sequencia_botao[cont] != sequencia[cont]) { //caso o botão clicado esteja incorreto, retorna que o usuario perdeu
         return false; 
       }
       lcd.setCursor(13, 1);
       lcd.print(cont + 1);
       cont++;
       delay(300);
-    } else if (digitalRead(pin_botaoD) == LOW) {
+    } else if (digitalRead(pin_botaoD) == LOW) { //ao clicar o botao direito, é armazenado o valor 1 no array da sequencia
       sequencia_botao[cont] = 1;
-      if (sequencia_botao[cont] != sequencia[cont]) {
+      if (sequencia_botao[cont] != sequencia[cont]) {  //caso o botão clicado esteja incorreto, retorna que o usuario perdeu
         return false; 
       }
       lcd.clear();
@@ -216,7 +222,7 @@ bool digitando() {
 
 //---------------- BANCO DE PERGUNTAS PARTE 2 -----------------
 
-const char* bancodedados_perguntas[13] = {
+const char* bancodedados_perguntas[13] = { //banco de perguntas para a fase 2
   "O Arduino possui portas digitais?",
   "As portas digitais funcionam com 5V?",
   "A computacao movel eh sempre segura?",
@@ -233,7 +239,7 @@ const char* bancodedados_perguntas[13] = {
 
 //---------------- BANCO DE RESPOSTAS PARTE 2 -----------------
 
-bool bancodedados_respostas[13] = {
+bool bancodedados_respostas[13] = { //respostas para cada pergunta no banco (emparelhada)
   true, 
   true,   
   false,  
@@ -252,16 +258,16 @@ bool bancodedados_respostas[13] = {
 //------------------------ PARTE 2 ----------------------------
 
 
-int respostas_corretas = 0;
-int num_perguntas[5];
+int respostas_corretas = 0; //variavel dedicada a contar quantas respostas foram respondidas corretamente
+int num_perguntas[5]; //array para armazenar as perguntas sorteadas
 
-void perguntas() {
-  randomSeed(analogRead(0));
-  bool pulou = false;
-  cont = 0;
-  if (estado == 0) return;
-  if (estado == 2) {
-    bool resposta = false;
+void perguntas() { //funcao para a fase de perguntas
+  randomSeed(analogRead(0)); //funcao para gerar uma semente aleatória para sortear as perguntas
+  bool pulou = false; //variavel para caso o usuario pulou uma pergunta
+  cont = 0; //contador para as perguntas
+  if (estado == 0) return; //caso o botao de desistencia for pressionado
+  if (estado == 2) { //enquanto o estado ainda esta em 2
+    bool resposta = false; //redefine a variavel 'resposta' para false
     lcd.clear();
     lcd.setCursor(4, 0);
     lcd.print("Fase das");
@@ -274,8 +280,8 @@ void perguntas() {
     lcd.setCursor(4, 1);
     lcd.print("perguntas");
     delay(2000);
-    if (estado == 0) return;
-    for (int j = 0; j < 5; j++){
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
+    for (int j = 0; j < 5; j++){ //sortea 5 perguntas aleatorias e armazena no array
       int num = random(13);
         for(int c = 0; c < 5; c++){
           if(num_perguntas[c] == num){
@@ -285,9 +291,9 @@ void perguntas() {
         num_perguntas[j] = num;
     }
     
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) { //loop ativo enquanto nao é respondido as 5 perguntas
       cont++;
-      if (estado == 0) return;
+      if (estado == 0) return; //caso o botao de desistencia for pressionado
       lcd.clear();
       lcd.setCursor(2, 0);
       lcd.print("Responda com");
@@ -301,8 +307,8 @@ void perguntas() {
       lcd.print(bancodedados_perguntas[num]);
       delay(1000);
       
-      for (int pos = 0; pos < strlen(bancodedados_perguntas[num]) - 16; pos++) {
-        if (estado == 0) return;
+      for (int pos = 0; pos < strlen(bancodedados_perguntas[num]) - 16; pos++) { //loop destinado para a funcao scrollDisplayLeft (move os caracteres da direita para esquerda, em casos de perguntas longas)
+        if (estado == 0) return; //caso o botao de desistencia for pressionado
         lcd.scrollDisplayLeft();  
         delay(300);
       }
@@ -310,24 +316,22 @@ void perguntas() {
       lcd.setCursor(3, 0);
       lcd.print("Questao ");
       lcd.print(cont);
-      Serial.println(bancodedados_respostas[num]);
+      Serial.println(bancodedados_respostas[num]); //mostrar a resposta da pergunta no serial (p/ auxiliar nos testes)
       lcd.setCursor(3, 1);
       lcd.print("Sim / Nao");
       delay(2000);
-      unsigned long tempo = millis();
-      Serial.println("tempo:");
-      Serial.println(tempo);
-      int resp = 0;
+      unsigned long tempo = millis(); //define o tempo no momento atual desde que o programa foi iniciado
+      int resp = 0; //variavel para definir se o usuario respondeu ou nao
 
-      if (estado == 0) return;
+      if (estado == 0) return; //caso o botao de desistencia for pressionado
       lcd.clear();
 
-      while((millis() - tempo) < 10000) {
+      while((millis() - tempo) < 10000) { //enquanto a diferenca entre o momento atual e a variavel tempo estiver dentro de 10 segundos
         delay(2);
         lcd.setCursor(3, 0);
         lcd.print("Tempo: ");
-        lcd.print((tempo + 10000 - millis())/1000 + 1);
-        if(((tempo + 10000 - millis())/1000 + 1) <= 3){
+        lcd.print((tempo + 10000 - millis())/1000 + 1); //mostra o tempo no lcd em contagem regressiva
+        if(((tempo + 10000 - millis())/1000 + 1) <= 3){ //faz o som de "tempo esgotando" quando o tempo atingir 3 segundos restantes
           som(4);
         }
         if(((tempo + 10000 - millis()) + 1000) < 10000 ){
@@ -337,33 +341,31 @@ void perguntas() {
         lcd.setCursor(3, 1);
         lcd.print("Sim / Nao");
 
-        if(digitalRead(pin_botaoE) == LOW) {
-          resp = 1;
-          resposta = true;
-          Serial.print(resposta);
+        if(digitalRead(pin_botaoE) == LOW) { //caso o botao da esquerda for pressionado, é constado que o usuario respondeu "SIM"
+          resp = 1; //a variavel define que o usuario respondeu
+          resposta = true; //resposta "SIM"
           break;
-        } else if (digitalRead(pin_botaoD) == LOW) {
-          resp = 1;
-          resposta = false;
-          Serial.print(resposta);
+        } else if (digitalRead(pin_botaoD) == LOW) { //caso o botao da direita for pressionado, é constado que o usuario respondeu "NAO"
+          resp = 1; //a variavel define que o usuario respondeu
+          resposta = false; //resposta "NAO"
           break;
         }
       }
       
-      if(resp == 0) {
-        if (!pulou) {
-          i--;
+      if(resp == 0) { //caso o usuario nao responda dentro do tempo
+        if (!pulou) { //se a opcao de pular a questao ainda nao foi utilizada
+          i--; //volta a contagem e a pergunta
           cont--;
-          som(0);
-          int num2 = random(13);
-          num_perguntas[i] = num2;
+          som(0); //som de vitoria
+          int num2 = random(13); //gera uma nova pergunta
+          num_perguntas[i] = num2; //armazena no array no lugar da pergunta pulada
           pulou = true;
           lcd.clear();
           lcd.setCursor(4, 0);
           lcd.print("Pulando...");
           delay(1500);
-        } else {
-          som(1);
+        } else { //caso a opcao de pular a questao ja foi utilizada
+          som(1); //som de derrota
           temp = 1;
           lcd.clear();
           lcd.setCursor(6, 0);
@@ -376,9 +378,9 @@ void perguntas() {
         }
       }
      
-      if(bancodedados_respostas[num] == resposta) { 
-        if(bancodedados_respostas[num] == true) {
-          som(0);
+      if(bancodedados_respostas[num] == resposta) { //confere se a resposta do usuario é igual a do banco de perguntas e respostas
+        if(bancodedados_respostas[num] == true) { //se a resposta correta for "SIM"
+          som(0); //som de vitoria
           respostas_corretas++;
           lcd.clear();
           lcd.setCursor(0, 0);
@@ -386,8 +388,8 @@ void perguntas() {
           lcd.setCursor(2, 1);
           lcd.print("*Sim / Nao");
           delay(1000); 
-        } else {
-          som(0);
+        } else { //se a resposta correta for "NAO"
+          som(0); //som de vitoria
           respostas_corretas++;
           lcd.clear();
           lcd.setCursor(0, 0);
@@ -396,9 +398,9 @@ void perguntas() {
           lcd.print("Sim / *Nao");
           delay(1000);
         }
-      } else {
-        if(bancodedados_respostas[num] == true) {
-          som(1);
+      } else { //se a resposta do usuario estiver incorreta
+        if(bancodedados_respostas[num] == true) { //se a resposta correta for "SIM"
+          som(1); //som de derrota
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Errada: ");
@@ -407,8 +409,8 @@ void perguntas() {
           delay(1000);
           estado = 0;
           return;
-        } else {
-          som(1);
+        } else { //se a resposta correta for "NAO"
+          som(1); //som de derrota
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("Resposta Errada: ");
@@ -419,8 +421,8 @@ void perguntas() {
           return;
         }
       }
-      if(respostas_corretas == 5){
-        estado = 3;
+      if(respostas_corretas == 5){ //caso o usuario respondeu todas as questoes corretamente
+        estado = 3; //altera o estado para 3 (3ª fase)
         return;
       }
       lcd.clear();
@@ -430,17 +432,17 @@ void perguntas() {
 
 //---------------- PERGUNTA PARTE 3 -----------------
 
-const char* pergunta_final_texto = "Voce gostou do jogo?";
+const char* pergunta_final_texto = "Voce gostou do jogo?"; //pergunta final
 
 //---------------- RESPOSTA PARTE 3 -----------------
 
-bool resposta_final = true;
+bool resposta_final = true; //resposta para a pergunta final
 
 //------------------------ PARTE 3 ----------------------------
 
-void pergunta_final(){
-  if (estado == 0) return;
-  if (estado == 3){
+void pergunta_final(){ //funcao para a pergunta final
+  if (estado == 0) return; //caso o botao de desistencia for pressionado
+  if (estado == 3){ //caso o estado ainda esteja em 3
     bool resposta = false;
     lcd.clear();
     lcd.setCursor(4, 0);
@@ -449,9 +451,9 @@ void pergunta_final(){
     lcd.print("Final");
     delay(2000);
     lcd.clear();
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
     
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
     lcd.clear();
     lcd.setCursor(2, 0);
     lcd.print("Responda com");
@@ -464,8 +466,8 @@ void pergunta_final(){
     lcd.print(pergunta_final_texto);
     delay(1000);
     
-    for (int pos = 0; pos < strlen(pergunta_final_texto) - 16; pos++) {
-      if (estado == 0) return;
+    for (int pos = 0; pos < strlen(pergunta_final_texto) - 16; pos++) { //loop destinado para a funcao scrollDisplayLeft (move os caracteres da direita para esquerda, em casos de perguntas longas)
+      if (estado == 0) return; //caso o botao de desistencia for pressionado
       lcd.scrollDisplayLeft();  
       delay(500);
     }
@@ -476,12 +478,12 @@ void pergunta_final(){
     lcd.setCursor(3, 1);
     lcd.print("Sim / Nao");
     delay(2000);
-    unsigned long tempo = millis();
+    unsigned long tempo = millis(); //define o tempo no momento atual
 
-    if (estado == 0) return;
+    if (estado == 0) return; //caso o botao de desistencia for pressionado
     lcd.clear();
     
-    while((millis() - tempo) < 10000) {
+    while((millis() - tempo) < 10000) { //enquanto a diferença do tempo no momento atual para a variavel 'tempo' é menor que 10 segundos
       delay(2);
       lcd.setCursor(3, 0);
       lcd.print("Tempo: ");
@@ -490,36 +492,36 @@ void pergunta_final(){
         lcd.setCursor(11,0);
         lcd.print(" ");
       }
-      if(((tempo + 10000 - millis())/1000 + 1) <= 3){
+      if(((tempo + 10000 - millis())/1000 + 1) <= 3){ //faz o som de "tempo esgotando" quando o tempo atingir 3 segundos restantes
           som(4);
       }
       lcd.setCursor(3, 1);
       lcd.print("Sim / Nao");
   
-      if(digitalRead(pin_botaoE) == LOW) {
-        resposta_final = true;
-        resp = 1;
+      if(digitalRead(pin_botaoE) == LOW) { //caso o usuario responda "SIM"
+        resposta_final = true; //define a resposta como "SIM"
+        resp = 1; //define que o usuario respondeu a pergunta
         break;
-      } else if (digitalRead(pin_botaoD) == LOW) {
-        resposta_final = false;
-        resp = 1;
+      } else if (digitalRead(pin_botaoD) == LOW) { //caso o usuario responda "NAO"
+        resposta_final = false; //define a resposta como "NAO"
+        resp = 1; //define que o usuario respondeu a pergunta
         break;
       }
     }
     
-    if(resposta_final == true){
+    if(resposta_final == true){ //caso o usuario respondeu corretamente, ele vence o jogo
       lcd.clear();
       lcd.setCursor(4, 0);
       lcd.print("PARABENS!");
       lcd.setCursor(3, 1);
       lcd.print("VOCE VENCEU!");
-      som(2);
+      som(2); // som de vitoria
       delay(4000);
       lcd.clear();
       estado = 0;
       return;
-    } else{
-      som(1);
+    } else{ //caso o usuario respondeu incorretamente, ele perde o jogo
+      som(1); //som de derrota
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Resposta Errada: ");
@@ -537,7 +539,7 @@ void pergunta_final(){
 
 //--------------------------- SOM ----------------------------
 
-void som(int sons) {
+void som(int sons) { //funcao para cada som
   if (sons == 0) { // acerto
     tone(pin_buzzer, 1200, 300);
     delay(100);
@@ -572,7 +574,7 @@ void som(int sons) {
 
 //----------------------- LIMPA ARRAY -------------------------
 
-void resetar_jogo() {
+void resetar_jogo() { //reseta todas as variaveis e arrays
   cont = 0;
   for (int i = 0; i < 10; i++) {
     sequencia[i] = 0;
