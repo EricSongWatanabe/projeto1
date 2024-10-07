@@ -1,1 +1,10 @@
-# projeto1
+# Projeto de Computação Móvel - Jogo
+
+## Introdução
+-Desenvolvimento de um projeto de Arduino, implementado em C++ para criação de um jogo com três etapas, Fase da Memória, Fase das perguntas e Fase da Pergunta Final. O jogo testará a memória do jogador, além do conhecimento acerca dos tópicos passados nas aulas de Computação Móvel. Tendo como objetivo, a construção lógica e física do jogo, utilizando os recursos oferecidos pelo Tinkercad e, posteriormente, na implementação material no Arduino.
+
+## Metodologia
+-Inicialmente, para a aplicação do jogo foi utilizado o Tinkercad, para fazer a esquematização do Arduino e elaboração do código. Em termos de Arduino, foram usados: 1 Arduino UNO, 1 LED vermelho, 1 LED verde, 3 Botões, 3 Resistores, 1 Buzzer, 1 Display LCD 16x2 e 1 Potenciômetro. O projeto foi desenvolvido em etapas. A primeira consistiu na montagem do circuito com os componentes necessários. Em seguida, foi aplicada a lógica de funcionamento do jogo no sistema implementado. Por fim, todo o conjunto foi posto em prática e o jogo foi testado no Arduino físico. Em relação ao código comentado, é possível ver no arquivo “projetoJogo.cpp”.
+
+## Conclusão
+-Durante a realização do jogo, enfrentamos diversos problemas com o código, o principal deles foi com relação ao delay dentro do loop do cronômetro, na fase de perguntas, em que foi preciso utilizar a função millis para fazer a contagem regressiva do tempo. Além disso, também tivemos alguns problemas na parte prática, ou seja, aplicação no Arduino, onde problemas que antes não ocorriam no Tinkercad começaram a acontecer. Nestes casos tentamos adaptar o programa para resolvê-los ou minimizá-los, realizando testes constantes e sempre buscando evitar erros futuros. Já em relação ao esquema físico, foi preciso a verificação de cada componente e local onde foi posicionado para fazer o projeto funcionar.
