@@ -1,4 +1,4 @@
-# Projeto de Computação Móvel - Jogo
+# Jogo da Memória em C++
 
 ## Introdução
 -Desenvolvimento de um projeto de Arduino, implementado em C++ para criação de um jogo com três etapas, Fase da Memória, Fase das perguntas e Fase da Pergunta Final. O jogo testará a memória do jogador, além do conhecimento acerca dos tópicos passados nas aulas de Computação Móvel. Tendo como objetivo, a construção lógica e física do jogo, utilizando os recursos oferecidos pelo Tinkercad e, posteriormente, na implementação material no Arduino.
